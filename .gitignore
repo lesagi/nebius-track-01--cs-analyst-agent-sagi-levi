@@ -1,0 +1,23 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Secrets and local state
+.env
+.langgraph_api/
+profiles/
+*.sqlite
+checkpoints.sqlite*
+
+*.txt
+*.sqlite
+*.sqlite-*
+*.csv
+nebius_models.md

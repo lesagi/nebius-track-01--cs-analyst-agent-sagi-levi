@@ -1,0 +1,35 @@
+# Non-secret configuration. Secrets (API keys) live in .env.
+
+dataset:
+  # Source for load_data.py (BITEXT_DATASET_PATH env overrides, e.g. a local CSV)
+  hf_csv: "hf://datasets/bitext/Bitext-customer-support-llm-chatbot-training-dataset/Bitext_Sample_Customer_Support_Training_Dataset_27K_responses-v11.csv"
+  # Local SQLite the agent queries (BITEXT_DB_PATH env overrides)
+  db_path: "bitext.sqlite"
+
+# Which models block below is active (MODEL_PROVIDER env overrides)
+provider: nebius
+
+# One model per role per provider; a missing role falls back to `default`.
+# Router: small fast instruct model - measured 4/4 correct at ~10x lower
+# latency, and classification needs little context. Executor: measured -
+# the small model produces wrong counts and malformed tool args once real
+# conversation context piles up, so it stays on the sophisticated model.
+# The nebius picks follow the same split, chosen by a measured bake-off
+# (see README): gpt-oss-120b for the sophisticated roles, a small fast
+# instruct model (3B active params) for the mechanical ones.
+models:
+  ollama:
+    base_url: "http://localhost:11434"
+    default: "qwen3.5:9b" # planner + executor + anything not pinned below
+    router: "llama3.1:8b-instruct-q4_K_M"
+    synthesizer: "qwen3.5:9b"
+    scanner: "llama3.1:8b-instruct-q4_K_M"
+  nebius:
+    base_url: "https://api.tokenfactory.nebius.com/v1"
+    default: "openai/gpt-oss-120b"
+    router: "Qwen/Qwen3-30B-A3B-Instruct-2507"
+    synthesizer: "openai/gpt-oss-120b"
+    scanner: "Qwen/Qwen3-30B-A3B-Instruct-2507"
+
+# Agent loop cap - graceful fallback instead of spinning forever.
+max_llm_calls: 12
